@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Squirrel Away</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game">
+
+  <header id="titlebar">
+    <h1>Squirrel Away</h1>
+    <div id="subtitle">a modest woodland enterprise</div>
+    <button id="devResetBtn" title="Wipe the save and reload">Reset Progress</button>
+  </header>
+
+  <nav id="tabs">
+    <button class="tabBtn active" data-tab="burrow">The Burrow</button>
+    <button class="tabBtn" data-tab="council">Squirrel Council</button>
+    <button class="tabBtn hidden" data-tab="market">The Market</button>
+    <button class="tabBtn hidden" data-tab="workforce">Workforce</button>
+    <button class="tabBtn hidden" data-tab="corp">Corporation</button>
+    <button class="tabBtn hidden" data-tab="media">Media</button>
+    <button class="tabBtn hidden" data-tab="realty">Treealty</button>
+    <button class="tabBtn hidden" data-tab="finance">Stock Market</button>
+    <button class="tabBtn hidden" data-tab="chipto">Chipto</button>
+    <button class="tabBtn hidden" data-tab="expansion">Expansion</button>
+  </nav>
+
+  <main id="mainArea">
+
+    <div id="statsBar">
+      <div class="stat"><span class="statLabel">Nuts (Hoard)</span><span id="statNuts">0</span></div>
+      <div class="stat"><span class="statLabel">Shells</span><span id="statShells">0</span></div>
+      <div class="stat hidden" id="statSalaryWrap"><span class="statLabel">Salary Cost</span><span id="statSalary">0/min</span></div>
+      <div class="stat" id="statForestWrap"><span class="statLabel">Forest Reserves</span><span id="statForest">0</span></div>
+      <div class="stat" id="statRepWrap"><span class="statLabel">Reputation</span><span id="statRep">100%</span></div>
+      <div class="stat"><span class="statLabel">Nuts You Actually Eat</span><span id="statNutsEaten">1/min</span></div>
+      <div class="stat"><span class="statLabel">Health</span><span id="statHealth">100%</span></div>
+      <div class="stat" id="statTimerWrap"><span class="statLabel">Next Minute</span><span id="statTimer">0:00</span></div>
+    </div>
+
+    <!-- ============ THE BURROW ============ -->
+    <section class="tabPanel" id="tab-burrow">
+      <p class="flavor">Winter is coming, the way it always does. A nut in the cheek is worth two in the tree.</p>
+      <button id="forageBtn" class="bigBtn">Forage for Nuts</button>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Instinct</h3>
+          <div id="upgrades-burrow" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SQUIRREL COUNCIL ============ -->
+    <section class="tabPanel hidden" id="tab-council">
+      <p class="flavor">They were here first. Every law on the books is aimed, one way or another, at squirrels like you.</p>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Laws in Effect</h3>
+          <div id="councilList" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MARKET ============ -->
+    <section class="tabPanel hidden" id="tab-market">
+      <p class="flavor">Turns out the other squirrels will trade shiny things for your surplus nuts.</p>
+      <div class="panelRow">
+        <div class="marketBox">
+          <div>Nuts convert to shells at <b><span id="nutConversionRate">1:1</span></b>.</div>
+          <button id="sellBtn" class="bigBtn">Sell All Nuts</button>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Growing the Business</h3>
+          <div id="upgrades-market" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORKFORCE ============ -->
+    <section class="tabPanel hidden" id="tab-workforce">
+      <p class="flavor">Many paws make light work. Every paw has a price.</p>
+      <div class="panelRow panelRowFlex">
+        <div class="marketBox">
+          <div class="statBlockLabel">Chipmunks Hired</div>
+          <div class="statBlockValue"><span id="chipmunkCount">0</span></div>
+          <div class="statLine">Output: <b><span id="chipmunkRateEach">0</span> nuts/min</b> each &nbsp;(<span id="chipmunkRateTotal">0</span> nuts/min total)</div>
+          <div class="statLine">Salary: <b><span id="chipmunkSalaryEach">0</span> shells/min</b> each &nbsp;(<span id="chipmunkSalaryTotal">0</span> shells/min total)</div>
+          <button id="hireBtn" class="bigBtn">Hire a Chipmunk — one-time signing bonus (<span id="hireCost">0</span> shells)</button>
+          <label>Lay off: <input type="range" id="layoffSlider" min="0" max="100" value="0"><span id="layoffPct">0%</span> of workforce</label>
+          <button id="layoffBtn" class="bigBtn danger">Lay Off Chipmunks</button>
+          <button id="pistachioBtn" class="bigBtn">Pistachio Party (0 shells)</button>
+        </div>
+        <div class="marketBox hidden" id="rigRow">
+          <div class="statBlockLabel">Munkbots</div>
+          <div class="statBlockValue"><span id="rigCount">0</span></div>
+          <div class="statLine">Output: <b><span id="rigRateEach">0</span> nuts/min</b> each &nbsp;(<span id="rigRateTotal">0</span> nuts/min total)</div>
+          <div class="statLine">Salary: <b><span id="rigSalary">none</span></b></div>
+          <div class="rigActions">
+            <button id="deployRigBtn" class="bigBtn">Deploy x1</button>
+            <button id="deployRigBtn10" class="bigBtn">Deploy x10</button>
+            <button id="deployRigBtn100" class="bigBtn">Deploy x100</button>
+          </div>
+          <div class="statLine" id="rigPrices"></div>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Labor &amp; Automation</h3>
+          <div id="upgrades-workforce" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CORPORATION ============ -->
+    <section class="tabPanel hidden" id="tab-corp">
+      <p class="flavor">Hollow Tree Holdings, LLC. A regular business, doing regular business things.</p>
+      <div class="panelRow hidden" id="backpayRow">
+        <div class="marketBox">
+          <div>Backpay Debt: <span id="backpayAmt">0</span> shells owed to unpaid chipmunks.</div>
+          <button id="bribeBtn" class="bigBtn">Bribe a Councilkin (300 nuts)</button>
+        </div>
+      </div>
+      <div class="panelRow hidden" id="tariffRow">
+        <div class="marketBox">
+          <label>Tariff: <input type="range" id="tariffSlider" min="0" max="100" value="0"><span id="tariffPct">0%</span></label>
+          <div class="statLine">Currently applied: <b><span id="tariffApplied">0%</span></b> (updates at the top of every minute)</div>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Corporate Affairs</h3>
+          <div id="upgrades-corp" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MEDIA ============ -->
+    <section class="tabPanel hidden" id="tab-media">
+      <p class="flavor">Public opinion is a resource, same as anything else. It just needs a little management.</p>
+      <div class="panelRow">
+        <div class="marketBox">
+          <div>Reputation: <b><span id="mediaRep">100</span>%</b></div>
+          <button id="smearBtn" class="bigBtn">Run a Smear Campaign</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ REALTY ============ -->
+    <section class="tabPanel hidden" id="tab-realty">
+      <p class="flavor">Every burrow is either owned or rented. Yours are all owned.</p>
+      <div class="panelRow">
+        <div class="marketBox">
+          <label>Rent Severity: <input type="range" id="rentSlider" min="0" max="100" value="0"><span id="rentPct">0%</span></label>
+          <div>Severity cap: <span id="rentCapDisplay">100%</span></div>
+          <div>Current rent income: <span id="rentIncome">0</span> shells/sec (max <span id="rentCap">0</span>/sec)</div>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="marketBox">
+          <div>Properties Available: <b><span id="propertiesAvailable">0</span></b></div>
+          <button id="crashMarketBtn" class="bigBtn danger">Crash the Market (2,500 shells)</button>
+        </div>
+      </div>
+      <div class="panelRow hidden" id="realtyAgentRow">
+        <div class="marketBox">
+          <label>Auto-Purchase: <input type="range" id="realtyAgentSlider" min="0" max="7" step="1" value="0"><span id="realtyAgentLabel">Never</span></label>
+          <div class="statLine">The agent will automatically buy Rental Property at this pace.</div>
+        </div>
+      </div>
+      <div class="panelRow hidden" id="fireAgentRow">
+        <div class="marketBox">
+          <div class="statLine">Every rental property has changed hands. The agent has nothing left to do.</div>
+          <button id="fireAgentBtn" class="bigBtn danger">Fire the Tree Estate Agent</button>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Property Holdings</h3>
+          <div id="upgrades-realty" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINANCE ============ -->
+    <section class="tabPanel hidden" id="tab-finance">
+      <p class="flavor">Money that makes money that makes money. Nobody's quite sure where the nuts are anymore.</p>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>The Stock Market</h3>
+          <div id="stockList" class="upgradeList"></div>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="panelCol">
+          <h3>Financial Instruments</h3>
+          <div id="upgrades-finance" class="upgradeList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CHIPTO ============ -->
+    <section class="tabPanel hidden" id="tab-chipto">
+      <p class="flavor">A currency. Backed by nothing. Trusted by everyone, right up until they aren't.</p>
+      <div class="panelRow">
+        <div class="marketBox">
+          <div class="statBlockLabel">Chipto Price</div>
+          <div class="statBlockValue"><span id="chiptoPrice">20</span> shells</div>
+          <div class="statLine">Holdings: <b><span id="chiptoHoldings">0</span> Chipto</b></div>
+          <div class="statLine">Lifetime Chipto proceeds: <b><span id="chiptoSellProceeds">0</span> shells</b></div>
+          <button id="hypeBtn" class="bigBtn">Hype It Up (200 shells)</button>
+          <label>Convert: <input type="range" id="chiptoSlider" min="0" max="100" value="0"><span id="chiptoPct">0%</span></label>
+          <button id="buyChiptoBtn" class="bigBtn">Buy Chipto</button>
+          <button id="sellChiptoBtn" class="bigBtn danger">Sell Chipto</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EXPANSION ============ -->
+    <section class="tabPanel hidden" id="tab-expansion">
+      <p class="flavor">There is, it turns out, only so much forest.</p>
+      <div class="panelRow">
+        <div class="marketBox">
+          <div>Forests Cleared: <span id="forestsCleared">0</span> / <span id="forestsTotal">0</span></div>
+          <div>Deforestation Index: <span id="deforestIndex">0%</span></div>
+          <div>Council Cut of Nut Sales: <b><span id="councilTaxRate">0%</span></b></div>
+        </div>
+      </div>
+      <div class="panelRow">
+        <div class="marketBox">
+          <div id="claimForestInfo"></div>
+          <button id="bribeCouncilBtn" class="bigBtn">Bribe the Council</button>
+        </div>
+      </div>
+      <div class="panelRow" id="gerryTriggerRow">
+        <div class="marketBox">
+          <div>The forest is bare. In an emergency session, the Council agrees to redistrict what's left into six fair and equal districts, one per squirrel clan. How you draw the lines is up to you.</div>
+          <button id="gerryOpenBtn" class="bigBtn">Redistrict the Forest</button>
+        </div>
+      </div>
+      <div class="panelRow hidden" id="gerryDoneMsg">
+        <div class="marketBox">
+          <div>Redistricting Complete.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside id="logPane">
+    <h3>Business &amp; Nature News</h3>
+    <div id="logList"></div>
+  </aside>
+
+</div>
+
+<div id="hungerWarning" class="hidden">You are hungry.</div>
+
+<div id="endingScreen" class="hidden">
+  <div id="endingText"></div>
+</div>
+
+<div id="gerryScreen" class="hidden">
+  <div id="gerryPanel">
+    <h2>Redistrict the Forest</h2>
+    <p class="flavor">The Council has ruled that each species keeps to its own district — Gray Squirrels, Fox Squirrels, Red Squirrels, Flying Squirrels, Ground Squirrels, and Chipmunks. Officially, this is about "community representation." Gray Squirrel territory (yours) goes wherever you draw it. Every cell must be assigned; every district must be the same size and one connected shape. Cell values are in millions of nuts.</p>
+    <div id="gerryBrushes"></div>
+    <div id="gerryGrid"></div>
+    <div id="gerryStatusList"></div>
+    <div>Gray Squirrel (Yours) captured value: <span id="gerryYourValue">0</span></div>
+    <div class="gerryButtons">
+      <button id="gerryFinalizeBtn" class="bigBtn" disabled>Finalize Redistricting</button>
+      <button id="gerryCancelBtn" class="bigBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/gerrymander.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
