@@ -30,6 +30,10 @@ function settleDisabled(el, key, rawDisabled, holdMs) {
 
 function switchTab(tab) {
   activeTab = tab;
+  if (!STATE.visitedTabs[tab]) {
+    STATE.visitedTabs[tab] = true;
+    saveGame(STATE);
+  }
   document.querySelectorAll(".tabBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
   document.querySelectorAll(".tabPanel").forEach(p => p.classList.toggle("hidden", p.id !== "tab-" + tab));
 }
@@ -230,6 +234,9 @@ function renderTabs() {
     if (tab === "expansion") {
       const needsAttention = s.unlockedTabs.expansion && s.forestReserves <= 0 && activeTab !== "expansion";
       b.classList.toggle("blink", needsAttention);
+    } else {
+      const needsAttention = s.unlockedTabs[tab] && !s.visitedTabs[tab] && activeTab !== tab;
+      b.classList.toggle("blink", needsAttention);
     }
   });
   document.querySelectorAll(".tabPanel").forEach(p => {
@@ -269,6 +276,7 @@ function renderWorkforce() {
   layoffBtn.disabled = s.chipmunks <= 0;
 
   const partyBtn = $("pistachioBtn");
+  partyBtn.classList.toggle("hidden", !s.flags.pistachioPartyUnlocked);
   if (partyActive) {
     const remainingSec = Math.max(0, Math.ceil((s.pistachioPartyUntil - displayNow()) / 1000));
     partyBtn.textContent = `Party in Progress (${remainingSec}s left)`;
@@ -369,8 +377,12 @@ function renderMedia() {
   const s = STATE;
   $("mediaRep").textContent = Math.round(s.reputation);
   const smearBtn = $("smearBtn");
+  const smearCooldownRemaining = Math.max(0, Math.ceil((s.lastSmearAt + CONFIG.smearCampaignCooldownMs - displayNow()) / 1000));
   if (s.reputation >= 100) {
     smearBtn.textContent = "Reputation Already Maxed";
+    smearBtn.disabled = true;
+  } else if (smearCooldownRemaining > 0) {
+    smearBtn.textContent = `On Cooldown (${smearCooldownRemaining}s)`;
     smearBtn.disabled = true;
   } else {
     smearBtn.textContent = "Run a Smear Campaign";
@@ -501,9 +513,15 @@ function renderExpansion() {
   const bribeBtn = $("bribeCouncilBtn");
   if (s.forestIndex < FORESTS.length) {
     const forest = FORESTS[s.forestIndex];
-    $("claimForestInfo").textContent = `Claim ${forest.name} — adds ${fmt(forest.reserves)} forest reserves. Costs -${CONFIG.landGrantReputationCost}% Reputation and adds another ${Math.round(CONFIG.councilTaxStep * 100)}% permanent tax on nut-to-shell conversions.`;
-    bribeBtn.textContent = `Bribe the Council (-${CONFIG.landGrantReputationCost}% Reputation)`;
-    bribeBtn.disabled = s.reputation < CONFIG.landGrantReputationCost;
+    if (s.forestReserves > 0) {
+      $("claimForestInfo").textContent = `Claim ${forest.name} — adds ${fmt(forest.reserves)} forest reserves. Clear your current forest reserves before expanding further.`;
+      bribeBtn.textContent = "Forest Not Yet Cleared";
+      bribeBtn.disabled = true;
+    } else {
+      $("claimForestInfo").textContent = `Claim ${forest.name} — adds ${fmt(forest.reserves)} forest reserves. Costs -${CONFIG.landGrantReputationCost}% Reputation and adds another ${Math.round(CONFIG.councilTaxStep * 100)}% permanent tax on nut-to-shell conversions.`;
+      bribeBtn.textContent = `Bribe the Council (-${CONFIG.landGrantReputationCost}% Reputation)`;
+      bribeBtn.disabled = s.reputation < CONFIG.landGrantReputationCost;
+    }
   } else {
     $("claimForestInfo").textContent = "No forests remain — every reachable forest has been claimed.";
     bribeBtn.textContent = "N/A";

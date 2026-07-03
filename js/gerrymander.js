@@ -185,7 +185,7 @@ function gerryRenderGrid() {
       cell.style.borderColor = GERRY_DISTRICT_COLORS[c.district - 1];
       cell.style.background = GERRY_DISTRICT_COLORS[c.district - 1] + "33";
     }
-    cell.innerHTML = `<div class="gerryTier">${c.tier}</div><div class="gerryValue">${c.value}M nuts</div>`;
+    cell.innerHTML = `<div class="gerryTier">${c.tier}</div><div class="gerryValue">${c.value}M</div>`;
     cell.addEventListener("click", () => gerryPaint(i));
     grid.appendChild(cell);
   });

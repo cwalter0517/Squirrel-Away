@@ -39,6 +39,7 @@ const CONFIG = {
   landGrantReputationCost: 25, // reputation cost to bribe the Council for a forest -- the only way to claim one now
   councilTaxStep: 0.01,       // each land bribe adds this much permanent tax on nut-to-shell conversions
   smearCampaignGain: 10,      // reputation gained per smear campaign, capped at 100 -- free to run, no shell cost
+  smearCampaignCooldownMs: 60000, // smear campaigns are limited to once per minute
   chiptoStartPrice: 100,      // shells per Chipto at launch
   chiptoMinPrice: 1,          // decay never pushes the price below this
   chiptoBurnCost: 1000000,    // flat nuts burned (not spent, gone) per Chipto purchase, regardless of size
@@ -60,10 +61,10 @@ const CONFIG = {
 // bribeCouncilForLand() -- so no `cost` field here.
 const FORESTS = [
   { name: "Old Oak Grove (home)", reserves: CONFIG.startForestReserves },
-  { name: "Pinecrest Ridge",       reserves: 9000 },
-  { name: "Maple Vale",            reserves: 30000 },
-  { name: "Birchwood Commons",     reserves: 90000 },
-  { name: "The Elderwood",         reserves: 300000 },
+  { name: "Pinecrest Ridge",       reserves: 50000 },
+  { name: "Maple Vale",            reserves: 100000 },
+  { name: "Birchwood Commons",     reserves: 250000 },
+  { name: "The Elderwood",         reserves: 1000000 },
 ];
 
 /* ----------------------------------------------------------
@@ -309,7 +310,7 @@ const UPGRADES = [
   {
     id: "unlockWorkforce", tab: "market", name: "Hire Some Help",
     desc: "You can't gather every nut yourself. Pay them under the stump. Unlocks the Workforce tab.",
-    repeatable: false, cost: 5000, currency: "nuts",
+    repeatable: false, cost: 5000,
     visible: s => s.flags.openMarket && !s.flags.unlockWorkforce,
     effect: s => { s.flags.unlockWorkforce = true; s.unlockedTabs.workforce = true;
       log(s, "You put out word that you're hiring. A line of chipmunks forms outside your burrow.", "milestone"); }
@@ -322,6 +323,14 @@ const UPGRADES = [
     repeatable: true, baseCost: 350, maxCount: 5,
     visible: s => s.flags.unlockWorkforce,
     effect: s => { s.chipmunkMultiplier *= 1.25; }
+  },
+  {
+    id: "pistachioPartyUnlock", tab: "workforce", name: "Host Pistachio Parties",
+    desc: "Unlocks the ability to throw a Pistachio Party, doubling chipmunk output for a minute.",
+    repeatable: false, cost: 15000,
+    visible: s => s.flags.unlockWorkforce && !s.flags.pistachioPartyUnlocked,
+    effect: s => { s.flags.pistachioPartyUnlocked = true;
+      log(s, "Somebody brings pistachios to the break room. Morale, briefly, is real.", "milestone"); }
   },
   {
     id: "foremanOwl", tab: "workforce", name: "Hire a Foreman Owl",
@@ -363,16 +372,16 @@ const UPGRADES = [
   {
     id: "tariffProgram", tab: "corp", name: "Impose a Nut Tariff",
     desc: "Set a tariff on nut-to-shell conversions. Unlocks a Tariff slider in this tab.",
-    repeatable: false, cost: 6000,
-    visible: s => s.flags.unlockCorp && !s.flags.tariffUnlocked,
+    repeatable: false, cost: 8647,
+    visible: s => s.flags.unlockCorp && s.forestIndex >= 3 && !s.flags.tariffUnlocked,
     effect: s => { s.flags.tariffUnlocked = true;
       log(s, "A Tariff Authority is established. A dial appears on your desk. It seems important.", "milestone"); }
   },
   {
     id: "wentPublic", tab: "corp", name: "Go Public",
     desc: "File the paperwork to take Hollow Tree Holdings public. Unlocks the Stock Market.",
-    repeatable: false, cost: 12000, reputationCost: 20,
-    visible: s => s.flags.unlockCorp && !s.flags.wentPublic,
+    repeatable: false, cost: 75000, reputationCost: 20,
+    visible: s => s.flags.unlockCorp && s.forestIndex >= 4 && !s.flags.wentPublic,
     effect: s => {
       s.flags.wentPublic = true; s.unlockedTabs.finance = true; s.unlockedTabs.expansion = true;
       log(s, "Hollow Tree Holdings rings the opening bell. Shares are now available to any squirrel with shells to spare.", "info");

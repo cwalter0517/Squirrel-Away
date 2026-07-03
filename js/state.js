@@ -18,6 +18,7 @@ function newState() {
 
     reputation: 100,
     health: 100, // never recovers -- each pre-redistricting hunger warning costs 10%, hitting 0 is fatal
+    lastSmearAt: 0,
     councilIncomeTaxRate: 0, // permanent cut of nut-to-shell conversions, +1% per Council land bribe
     tariffRate: 0,          // player's tariff slider setting (0-100), purely cosmetic until the next minute tick
     tariffEffectiveRate: 0, // the tariff fraction actually being applied to conversions right now
@@ -56,6 +57,9 @@ function newState() {
     upgradeCounts: {},
     flags: {},
     unlockedTabs: { burrow: true, council: true, market: false, workforce: false, corp: false, finance: false, expansion: false, realty: false, chipto: false, media: false },
+    // Tabs open from the very start don't need a "new tab" blink; everything
+    // else blinks once, the first time it unlocks, until clicked on.
+    visitedTabs: { burrow: true, council: true, market: false, workforce: false, corp: false, finance: false, expansion: false, realty: false, chipto: false, media: false },
 
     ended: false,
     endingText: "",
@@ -77,6 +81,7 @@ function loadGame() {
     return Object.assign(base, loaded, {
       flags: Object.assign({}, loaded.flags),
       unlockedTabs: Object.assign({}, base.unlockedTabs, loaded.unlockedTabs),
+      visitedTabs: Object.assign({}, base.visitedTabs, loaded.visitedTabs),
       upgradeCounts: Object.assign({}, loaded.upgradeCounts),
     });
   } catch (e) {

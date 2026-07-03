@@ -34,6 +34,7 @@ function isPistachioPartyActive(s) {
 
 function startPistachioParty() {
   const s = STATE;
+  if (!s.flags.pistachioPartyUnlocked) return;
   if (isPistachioPartyActive(s)) return;
   if (s.chipmunks <= 0) return;
   const cost = s.chipmunks * CONFIG.pistachioPartyCostPerChipmunk;
@@ -255,6 +256,7 @@ function layoffChipmunks(pct) {
 function bribeCouncilForLand() {
   const s = STATE;
   if (s.forestIndex >= FORESTS.length) return;
+  if (s.forestReserves > 0) return; // current forest must be fully cleared first
   if (s.reputation < CONFIG.landGrantReputationCost) return;
   const forest = FORESTS[s.forestIndex];
   s.reputation -= CONFIG.landGrantReputationCost;
@@ -270,7 +272,9 @@ function runSmearCampaign() {
   const s = STATE;
   if (!s.flags.mediaUnlocked) return;
   if (s.reputation >= 100) return;
+  if (Date.now() - s.lastSmearAt < CONFIG.smearCampaignCooldownMs) return;
   s.reputation = Math.min(100, s.reputation + CONFIG.smearCampaignGain);
+  s.lastSmearAt = Date.now();
   const blurb = SMEAR_BLURBS[Math.floor(Math.random() * SMEAR_BLURBS.length)];
   log(s, blurb, "warn");
   saveGame(s);
