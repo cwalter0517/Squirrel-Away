@@ -313,4 +313,17 @@ body {
 @media (max-width: 800px) {
   #game { grid-template-columns: 1fr; grid-template-areas: "header" "tabs" "main" "log"; }
   #logPane { border-left: none; border-top: 4px solid var(--accent-dark); max-height: 240px; }
+
+  /* Law/upgrade cards: a long button (e.g. "Bribe the Council to Ignore
+     Munkbot Waste") next to a fixed-width desc forced the card wider than
+     the viewport on narrow screens. Let the button drop below the text
+     instead of pushing the whole page into horizontal scroll. */
+  .upgradeCard { flex-wrap: wrap; }
+  .upgradeCard .desc { max-width: 100%; }
+  .upgradeCard button { white-space: normal; max-width: 100%; }
+
+  /* Stock buy/sell buttons (x1/x10/x100/x1000 + Sell All) were forced onto
+     one non-wrapping row for desktop; on narrow screens that's wider than
+     the viewport, so let them wrap here instead. */
+  .stockActions { flex-wrap: wrap; justify-content: flex-start; }
 }
