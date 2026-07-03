@@ -21,6 +21,7 @@ const CONFIG = {
   raiseRentCapCost: 500,      // flat shells cost of each "raise the rent cap" purchase
   startPropertiesAvailable: 25, // rental properties on the market when Treealty unlocks
   crashMarketCost: 2500,      // flat shells cost to crash the market
+  crashMarketReputationCost: 10, // reputation cost per crash
   crashMarketGain: 100,       // properties added to the market each time it's crashed
   crashMarketCooldownMs: 60000, // crashing the market is limited to once per minute -- also how long the price dip takes to recover
   rentalPropertyCost: 500,    // normal asking price for a rental property
@@ -39,6 +40,7 @@ const CONFIG = {
   landGrantReputationCost: 25, // reputation cost to bribe the Council for a forest -- the only way to claim one now
   councilTaxStep: 0.01,       // each land bribe adds this much permanent tax on nut-to-shell conversions
   smearCampaignGain: 10,      // reputation gained per smear campaign, capped at 100 -- free to run, no shell cost
+  nutflixReputationGain: 5,   // reputation gained per minute once Nutflix is bought, capped at 100
   smearCampaignCooldownMs: 60000, // smear campaigns are limited to once per minute
   chiptoStartPrice: 100,      // shells per Chipto at launch
   chiptoMinPrice: 1,          // decay never pushes the price below this
@@ -61,10 +63,10 @@ const CONFIG = {
 // bribeCouncilForLand() -- so no `cost` field here.
 const FORESTS = [
   { name: "Old Oak Grove (home)", reserves: CONFIG.startForestReserves },
-  { name: "Pinecrest Ridge",       reserves: 50000 },
-  { name: "Maple Vale",            reserves: 100000 },
-  { name: "Birchwood Commons",     reserves: 250000 },
-  { name: "The Elderwood",         reserves: 1000000 },
+  { name: "Pinecrest Ridge",       reserves: 100000 },
+  { name: "Maple Vale",            reserves: 250000 },
+  { name: "Birchwood Commons",     reserves: 1000000 },
+  { name: "The Elderwood",         reserves: 2500000 },
 ];
 
 /* ----------------------------------------------------------
@@ -222,7 +224,7 @@ const LAWS = [
   {
     id: "munkbotCleanupLaw",
     name: "Munkbot Byproduct Cleanup Act",
-    desc: `Munkbots leave behind wasteful byproducts. The Council requires cleanup at ${CONFIG.munkbotCleanupCostPerMin} nuts/min per Munkbot.`,
+    desc: "Munkbot owners are required to clean up harmful byproducts they excrete.",
     kind: "continuous",
     unlock: s => s.flags.munkbotsUnlocked,
     announceText: "The Council passes the Munkbot Byproduct Cleanup Act. Every Munkbot now costs nuts per minute in mandatory cleanup.",
@@ -388,12 +390,22 @@ const UPGRADES = [
     }
   },
 
+  // ---------------- MEDIA ----------------
+  {
+    id: "buyNutflix", tab: "media", name: "Buy Nutflix",
+    desc: "Constant propaganda for the forest critters. Reputation +5/min.",
+    repeatable: false, cost: 1000000,
+    visible: s => s.flags.mediaUnlocked && !s.flags.nutflixUnlocked,
+    effect: s => { s.flags.nutflixUnlocked = true;
+      log(s, "Hollow Tree Holdings acquires Nutflix. The forest never stops watching now.", "milestone"); }
+  },
+
   // ---------------- FINANCE ----------------
   {
     id: "launchChipto", tab: "finance", name: "Launch Chipto",
     desc: "Create your very own currency, backed by nothing but confidence. Unlocks the Chipto tab.",
     repeatable: false, cost: 5000,
-    visible: s => s.stockSellProceeds >= 1000000 && !s.flags.chiptoLaunched,
+    visible: s => s.stockSellProceeds >= 100000000 && !s.flags.chiptoLaunched,
     effect: s => { s.flags.chiptoLaunched = true; s.unlockedTabs.chipto = true;
       log(s, "Chipto goes live. Whitepaper pending.", "milestone"); }
   },

@@ -335,8 +335,8 @@ function renderRealty() {
     crashBtn.textContent = `On Cooldown (${crashCooldownRemaining}s)`;
     crashBtn.disabled = true;
   } else {
-    crashBtn.textContent = `Crash the Market (${fmt(CONFIG.crashMarketCost)} shells)`;
-    crashBtn.disabled = s.shells < CONFIG.crashMarketCost;
+    crashBtn.textContent = `Crash the Market (${fmt(CONFIG.crashMarketCost)} shells, -${CONFIG.crashMarketReputationCost}% Reputation)`;
+    crashBtn.disabled = s.shells < CONFIG.crashMarketCost || s.reputation < CONFIG.crashMarketReputationCost;
   }
 
   $("realtyAgentRow").classList.toggle("hidden", !s.flags.realtyAgentUnlocked);
@@ -388,6 +388,8 @@ function renderMedia() {
     smearBtn.textContent = "Run a Smear Campaign";
     smearBtn.disabled = false;
   }
+
+  renderUpgradeList("media");
 }
 
 // Same build-once-then-patch approach as upgrade/stock cards: law cards now

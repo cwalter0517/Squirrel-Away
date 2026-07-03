@@ -2,10 +2,9 @@
    SQUIRRELED AWAY — "Redistrict the Forest" minigame
    A one-time gerrymandering puzzle, available only once forest
    reserves hit zero: divide a grid of trees into equal-size,
-   contiguous districts. Solving it (regardless of how skewed
-   District 1's take is) grants a huge one-time reserves windfall --
-   this is the emergency fix for a resource crisis, not a bonus to
-   optimize, and forests never regrow on their own otherwise.
+   contiguous districts. Solving it grants a reserves windfall equal
+   to the value captured by District 1 (Gray Squirrel, yours), in
+   millions -- so how skewed you draw the lines directly decides the payout.
    The best trees are innately clustered along one winding, irregular
    chain near the center of the grid -- the puzzle is deciding
    whether to carve District 1 around that chain, or build the other
@@ -15,7 +14,6 @@
 const GERRY_GRID_SIZE = 6;      // 6x6 grid
 const GERRY_NUM_DISTRICTS = 6;  // must evenly divide GERRY_GRID_SIZE^2
 const GERRY_DISTRICT_SIZE = (GERRY_GRID_SIZE * GERRY_GRID_SIZE) / GERRY_NUM_DISTRICTS;
-const GERRY_RESERVE_GRANT = 20000000; // flat reserves windfall on completion, regardless of skew
 const GERRY_DISTRICT_COLORS = ["#c1541c", "#4b6b2f", "#3f6b8c", "#8c3a6b", "#b8860b", "#5d4037"];
 // Districts are drawn along species lines, not neutral numbers -- district 1
 // (yours) is always Gray Squirrel territory, the other five are whichever
@@ -213,7 +211,7 @@ function gerryFinalize() {
   if (!v.allValid) return;
   const yourValue = gerryDistrictCells(1).reduce((a, c) => a + c.value, 0);
   const avgValue = gerry.cells.reduce((a, c) => a + c.value, 0) / GERRY_NUM_DISTRICTS;
-  const gain = GERRY_RESERVE_GRANT;
+  const gain = yourValue * 1000000; // cell values are in millions of nuts
   STATE.forestReserves += gain;
   STATE.forestCap += gain;
   STATE.flags.redistricted = true;

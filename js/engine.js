@@ -161,6 +161,11 @@ function applyTariff(s) {
   log(s, `Tariffs take effect. The Nut is now worth ${netPct}% of its shell value on the open market.`, "news");
 }
 
+function applyNutflix(s) {
+  if (!s.flags.nutflixUnlocked) return;
+  s.reputation = Math.min(100, s.reputation + CONFIG.nutflixReputationGain);
+}
+
 function sellNuts(pct) {
   const s = STATE;
   const amount = s.nuts * (pct / 100);
@@ -431,7 +436,9 @@ function crashMarket() {
   }
   if (Date.now() - s.lastCrashMarketAt < CONFIG.crashMarketCooldownMs) return;
   if (s.shells < CONFIG.crashMarketCost) return;
+  if (s.reputation < CONFIG.crashMarketReputationCost) return;
   s.shells -= CONFIG.crashMarketCost;
+  s.reputation -= CONFIG.crashMarketReputationCost;
   const gain = Math.min(CONFIG.crashMarketGain, room);
   s.propertiesAvailable += gain;
   s.lastCrashMarketAt = Date.now();
@@ -510,6 +517,7 @@ function applyCouncilLaws(s, dt, now) {
     else if (l.applyMinute) l.applyMinute(s);
   });
   applyTariff(s);
+  applyNutflix(s);
   updateStockPrices(s);
 }
 
